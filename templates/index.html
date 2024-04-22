@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chocolate Outer Shell</title>
+    <link rel="stylesheet" type="text/css" href="/static/styles.css" />
+</head>
+<body>
+
+  <div style="display: flex; align-items: left;">
+    <img src="/static/Mars_logo.png" alt="Mars Logo" style="width: 50px; height: 50px; margin-right: 10px;">
+    <h1>Mars Demo UI</h1>
+</div>
+
+<div class="container"></div>
+  <div class="section">
+
+    <form method="POST" action="/generate">
+      <label for="hunting_ground">Select your Hunting Ground:</label>
+      <select name="hunting_ground" id="hunting_ground">
+        <option value="Scheduled Reset">Scheduled Reset</option>
+        <option value="Fully Unplug">Fully Unplug</option>
+        <option value="Needed Fun">Needed Fun</option>
+        <option value="Keep Me Going">Keep Me Going</option>
+        <option value="Custom">Custom Query</option> <!-- Add the new "custom" option -->
+      </select>
+
+      <!-- Custom query textarea, initially hidden -->
+      <label for="custom_query" id="custom_query_label" style="display: none;">Custom Query:</label>
+      <textarea name="custom_query" id="custom_query" class="large-input" style="display: none;"></textarea>
+
+      <button type="button" id="load-button">Load</button>
+
+      <!-- Loading screen -->
+      <div id="loading-screen" style="display: none;">
+        <img src="/static/loading.gif" alt="Loading">
+      </div>
+
+      <label for="grounding">Grounding:</label>
+      <textarea name="grounding" id="grounding" class="large-input">{{ grounding }}</textarea>
+
+      <label for="persona">Persona:</label>
+      <textarea name="persona" id="persona" class="large-input">{{ persona }}</textarea>
+
+      <label for="objective">Objective:</label>
+      <textarea name="objective" id="objective" class="large-input">{{ objective }}</textarea>
+
+      <label for="context">Context:</label>
+      <textarea name="context" id="context" class="large-input">{{ context }}</textarea>
+
+      <label for="output_format">Output Format:</label>
+      <textarea name="output_format" id="output_format" class="large-input">{{ output_format }}</textarea>
+      <br>
+      <br>
+      <input type="submit" value="Submit"> <input type="reset" value="Reset" onClick="window.location = '/';">
+    </form>
+
+  </div>
+</div>
+
+<div class="container">
+  <div class="section">
+    {% if response %}
+    <h2>Results:</h2>
+    <p>{{ response | safe }}</p>
+    {% endif %}
+  </div>
+</div>
+
+
+</body>
+
+<script src="/static/scripts.js"></script>
+
+</html>

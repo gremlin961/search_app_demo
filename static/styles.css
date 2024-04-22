@@ -1,0 +1,157 @@
+/* Updated stylesheet with aesthetic enhancements */
+
+body {
+  background-color: #f0f0f0; /* Subtle gray background */
+}
+
+h1 {
+  font-family: 'Helvetica', sans-serif; /* Modern font */
+  font-weight: bold;
+  color: #303030; /* Dark gray text */
+}
+
+h2 {
+  font-size: 1.2rem; /* Slightly larger font size */
+}
+
+form {
+  background-color: white; /* White background for form */
+  padding: 30px;
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.large-input {
+  border: 1px solid #ccc; /* Thin gray border */
+  padding: 10px;
+  border-radius: 5px;
+  width: 500px;
+  height: 100px;
+  vertical-align: top;
+  text-align: bottom;
+  /*word-wrap: break-word;*/
+}
+
+input[type="text"] {
+    word-wrap: break-word;
+    resize: both;
+    vertical-align: top;
+    text-align: bottom;
+}
+
+button {
+  background-color: #007bff; /* Blue buttons */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0062cc;
+}
+
+input[type="submit"], input[type="reset"] {
+  background-color: #007bff; /* Blue buttons */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease; /* Smooth color transition on hover */
+}
+
+input[type="submit"]:hover, input[type="reset"]:hover {
+  background-color: #0062cc; /* Darker blue on hover */
+}
+
+label {
+  display: block;
+  margin-top: 20px;
+}
+
+select {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 200px;
+}
+
+/* Add styles for the results page */
+
+h3 {
+  margin-top: 30px;
+}
+
+p {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+}
+
+/* Styles for side-by-side layout */
+.container {
+    display: flex;
+    gap: 5%;
+}
+
+.section {
+    width: 100%;
+}
+
+/* Styles for the processing screen */
+#div2 text{
+  font-family: 'Helvetica', sans-serif; /* Modern font */
+  font-weight: bold;
+  color: #7e7e7ea0; /* Dark gray text */
+}
+
+#div2 img {
+  position: fixed; /* Position the image in the center of the screen */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Center the image */
+  width: 50vw; /* Set the width to 75% of the viewport width */
+  height: 50vh; /* Set the height to 75% of the viewport height */
+  border: 10px solid white; /* Add a white border */
+}
+
+#search-results-container {
+  /*margin-left: auto;*/
+  display: inline-block; 
+  vertical-align: top; 
+  right: 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#loading-screen {
+  /* Full-screen loading screen */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+#loading-screen img {
+  position: fixed;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  transform: translate(-50%, -50%); /* Center the image */
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+}
+

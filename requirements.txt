@@ -1,0 +1,11 @@
+google-cloud-aiplatform
+vertexai
+google.cloud
+google-cloud-discoveryengine
+typing
+google.api_core
+fastapi[all]
+pydantic
+python-multipart
+uvicorn
+pyyaml
