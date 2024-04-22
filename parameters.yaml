@@ -1,8 +1,8 @@
-'PROJECT_ID': 'mars-snacking-dce'
+'PROJECT_ID': 'your_project_id'
 'REGION': 'us-central1'
 'LOCATION': 'us'
-'DSNAME': 'mars-ai-innovation-datastore_1713291787164'
-'DENAME': 'mars-innovation-search_1713363757627'
+'DSNAME': 'agent_builder_datastore_name'
+'DENAME': 'agent_builder_engine_name'
 
-'WEBUSER': 'demo_user'
-'WEBPASS': 'demo_pass'
+'WEBUSER': 'set_a_username'
+'WEBPASS': 'set_a_password'
