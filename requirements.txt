@@ -9,3 +9,5 @@ pydantic
 python-multipart
 uvicorn
 pyyaml
+passlib
+markdown

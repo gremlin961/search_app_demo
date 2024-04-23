@@ -11,10 +11,9 @@
     <h1>Mars Demo UI</h1>
 </div>
 
-<div class="container"></div>
+<div class="container">
   <div class="section">
-
-    <form method="POST" action="/generate">
+    <form>
       <label for="hunting_ground">Select your Hunting Ground:</label>
       <select name="hunting_ground" id="hunting_ground">
         <option value="Scheduled Reset">Scheduled Reset</option>
@@ -51,18 +50,15 @@
       <textarea name="output_format" id="output_format" class="large-input">{{ output_format }}</textarea>
       <br>
       <br>
-      <input type="submit" value="Submit"> <input type="reset" value="Reset" onClick="window.location = '/';">
+      <button type="button" id="generate">Generate</button> <input type="reset" value="Reset" onClick="window.location = '/';">
     </form>
 
   </div>
-</div>
-
-<div class="container">
   <div class="section">
-    {% if response %}
-    <h2>Results:</h2>
-    <p>{{ response | safe }}</p>
-    {% endif %}
+    <form name="results_form" id="results_form" style="display: none;">
+      <h2>Results:</h2>
+      <p id='generated_result'></p>
+    </form>
   </div>
 </div>
 
