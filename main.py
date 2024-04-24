@@ -72,7 +72,7 @@ async def load_search_results(request: Request):
      search_query = "Tell me about the " + data["hunting_ground"] + " HG"
   search_results = vertexModels.search_sample(project_id, location, engine_id, search_query)
   grounding_data = search_results.summary.summary_text
-  #grounding_data = grounding_data.replace("\n", "<br />")
+  grounding_data = markdown.markdown(grounding_data)
   return grounding_data
 
 @app.post("/load_gemini_response")
@@ -101,11 +101,10 @@ async def load_gemini_response(request: Request):
 <Output Format>
 {data["output_format"]}"""
 
-    print(prompt)
+    #print(prompt)
     gemini_results = vertexModels.gemini_text(project_id, region, prompt)
-    #gemini_results = gemini_results.replace("\n", "<br />")
     gemini_results = markdown.markdown(gemini_results)
-    print(gemini_results)
+    #print(gemini_results)
     return gemini_results
 
 

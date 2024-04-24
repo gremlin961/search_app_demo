@@ -20,7 +20,7 @@ document.getElementById("load-button").addEventListener("click", function() {
       // Replace \n characters with actual line breaks
       data = data.replace(/\\n/g, "\n");
       // Update the search-results textarea with the response
-      document.getElementById("grounding").value = data;
+      document.getElementById("grounding").innerHTML = data;
   });
 });
 
@@ -42,7 +42,7 @@ fetch("/load_gemini_response", {
     persona: document.getElementById("persona").value,
     objective: document.getElementById("objective").value,
     context: document.getElementById("context").value,
-    grounding: document.getElementById("grounding").value,
+    grounding: document.getElementById("grounding").innerText,
     output_format: document.getElementById("output_format").value
   })
 })
