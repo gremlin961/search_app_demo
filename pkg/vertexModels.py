@@ -42,7 +42,7 @@ def search_sample(project_id, location, engine_id, search_query) -> List[discove
             ),
             # Change the version to "stable" to use the GA version of the model
             model_spec=discoveryengine.SearchRequest.ContentSearchSpec.SummarySpec.ModelSpec(
-                version="preview",
+                version="gemini-1.0-pro-002/answer_gen/v1",
             ),
         ),
     )
