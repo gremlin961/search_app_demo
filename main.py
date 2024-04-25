@@ -11,6 +11,19 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import markdown
 
 
+
+import vertexai
+from vertexai.preview.generative_models import GenerativeModel, Part
+from google.cloud import aiplatform
+from google.cloud import aiplatform_v1beta1 as vertex_ai
+from typing import List
+from google.api_core.client_options import ClientOptions
+from google.cloud import discoveryengine_v1beta as discoveryengine
+
+
+
+
+
 app = FastAPI()
 
 # Read the gcp_parameters file for related project information
@@ -42,6 +55,14 @@ persona = 'You are a marketing professional'
 objective = 'Provide information about the customer base for the associated Hunting Ground' 
 context = 'Any additional information'
 output_format = 'Specify your preferred output format' 
+
+
+
+
+vertexai.init(project=project_id, location=region)
+chat_model = GenerativeModel("gemini-1.5-pro-preview-0409")
+chat = chat_model.start_chat()
+
 
 
 
@@ -79,10 +100,6 @@ async def load_search_results(request: Request):
 async def load_gemini_response(request: Request):
     print("Generating Gemini Response...")
     data = await request.json()
-    if (data["hunting_ground"] == 'Custom'):
-        search_query = data["custom_query"]
-    else: 
-        search_query = "Tell me about the " + data["hunting_ground"] + " HG"
     
     prompt = f"""<Hunting Ground> {data["hunting_ground"]}
 
@@ -101,12 +118,28 @@ async def load_gemini_response(request: Request):
 <Output Format>
 {data["output_format"]}"""
 
-    #print(prompt)
-    gemini_results = vertexModels.gemini_text(project_id, region, prompt)
-    gemini_results = markdown.markdown(gemini_results)
+    print(prompt)
+    #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)
+    gemini_results = chat.send_message(prompt)
+    gemini_results = markdown.markdown(gemini_results.text)
     #print(gemini_results)
     return gemini_results
 
+
+@app.post("/load_gemini_follow-up")
+async def load_gemini_response(request: Request):
+    print("Generating Gemini Response...")
+    data = await request.json()
+
+    print(data)
+    prompt = f"""{data["followupprompt"]}"""
+
+    print(prompt)
+    #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)
+    gemini_results = chat.send_message(prompt)
+    gemini_results = markdown.markdown(gemini_results.text)
+    #print(gemini_results)
+    return gemini_results
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)

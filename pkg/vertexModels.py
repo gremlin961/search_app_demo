@@ -82,3 +82,19 @@ def gemini_text(project_id: str, location: str, prompt: str) -> str:
     )
     #print(response)
     return response.text
+
+
+# Function for calling the Gemini model
+def gemini_chat(project_id: str, location: str, prompt: str) -> str:
+    # Initialize Vertex AI
+    vertexai.init(project=project_id, location=location)
+    # Load the model
+    #multimodal_model = GenerativeModel("gemini-pro")
+    multimodal_model = GenerativeModel("gemini-1.5-pro-preview-0409")
+    # Query the model
+    chat = multimodal_model.start_chat()
+    response = chat.send_message(
+        prompt
+    )
+    #print(response)
+    return response.text

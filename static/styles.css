@@ -162,6 +162,7 @@ p {
   border: 1px solid #ccc; /* Thin gray border */
   padding: 10px;
   border-radius: 5px;
+  resize: both;
   width: 500px;
   height: 100px;
   vertical-align: top;

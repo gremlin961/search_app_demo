@@ -35,7 +35,7 @@
       </div>
 
       <label for="grounding">Grounding:</label>
-      <textarea name="grounding" id="grounding" class="large-input">{{ grounding }}</textarea>
+      <div name="grounding" id="grounding" class="div-large-input" contenteditable="true"></div>
 
       <label for="persona">Persona:</label>
       <textarea name="persona" id="persona" class="large-input">{{ persona }}</textarea>
@@ -58,6 +58,7 @@
     <form name="results_form" id="results_form" style="display: none;">
       <h2>Results:</h2>
       <p id='generated_result'></p>
+      <textarea name="follow-up-prompt" id="follow-up-prompt"></textarea> <button type="button" id="follow-up">Send</button>
     </form>
   </div>
 </div>
