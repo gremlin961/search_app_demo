@@ -36,12 +36,12 @@ location = parameters['LOCATION']
 region = parameters['REGION']
 engine_id = parameters['DENAME']
 
+# ---- Uncomment the lines below to use basic authentication if needed. Also see the @app.get("/") section
 # Pull the username and password info for the web service from the gcp_parameters file
-username = parameters['WEBUSER']
-password = parameters['WEBPASS']
-
+#username = parameters['WEBUSER']
+#password = parameters['WEBPASS']
 # Configure authentication for the web service and define the username and password
-security = HTTPBasic()
+#security = HTTPBasic()
 
 
 # Specify the location for the Jinja templates
@@ -67,11 +67,13 @@ chat = chat_model.start_chat()
 
 
 @app.get("/")
-def home(request: Request, credentials: HTTPBasicCredentials = Depends(security)):
-    if credentials.username != username or credentials.password != password:
-        raise HTTPException(
-            status_code=401, detail="Invalid credentials", headers={"WWW-Authenticate": "Basic"}
-        )
+# --- Uncomment the below lines and comment out the following def statement to enable basic security
+#def home(request: Request, credentials: HTTPBasicCredentials = Depends(security)):
+#    if credentials.username != username or credentials.password != password:
+#        raise HTTPException(
+#            status_code=401, detail="Invalid credentials", headers={"WWW-Authenticate": "Basic"}
+#        )
+def home(request: Request):
     hunting_grounds = [
         "Scheduled Reset",
         "Fully Unplug",
@@ -94,7 +96,8 @@ async def load_search_results(request: Request):
   search_results = vertexModels.search_sample(project_id, location, engine_id, search_query)
   grounding_data = search_results.summary.summary_text
   grounding_data = markdown.markdown(grounding_data)
-  return grounding_data
+  print(grounding_data)
+  return str(grounding_data)
 
 @app.post("/load_gemini_response")
 async def load_gemini_response(request: Request):

@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chocolate Outer Shell</title>
+    <title>Gemini Chat Shell</title>
     <link rel="stylesheet" type="text/css" href="/static/styles.css" />
 </head>
 <body>
 
   <div style="display: flex; align-items: left;">
-    <img src="/static/Mars_logo.png" alt="Mars Logo" style="width: 50px; height: 50px; margin-right: 10px;">
-    <h1>Mars Demo UI</h1>
+    <img src="/static/gemini.png" alt="Gemini Logo" style="width: 135px; height: 50px; margin-right: 10px;">
+    <h1>Grounded Chat Demo</h1>
 </div>
 
 <div class="container">
@@ -54,11 +54,14 @@
     </form>
 
   </div>
+
   <div class="section">
     <form name="results_form" id="results_form" style="display: none;">
+    <!--<form name="results_form" id="results_form">-->
       <h2>Results:</h2>
       <p id='generated_result'></p>
-      <textarea name="follow-up-prompt" id="follow-up-prompt"></textarea> <button type="button" id="follow-up">Send</button>
+      <textarea name="follow-up-prompt" id="follow-up-prompt" class="prompt-input"></textarea> 
+      <button type="button" id="follow-up">Send</button>
     </form>
   </div>
 </div>

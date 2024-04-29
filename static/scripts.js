@@ -13,12 +13,13 @@ document.getElementById("load-button").addEventListener("click", function() {
       custom_query: document.getElementById("custom_query").value
     })
   })
-  .then(response => response.text())
+  .then(response => response.json())
   .then(data => {
       // Hide the loading screen
       document.getElementById("loading-screen").style.display = "none";
       // Replace \n characters with actual line breaks
-      data = data.replace(/\\n/g, "\n");
+      data = data.replace(/\\n/g, '\n');
+      console.log(data);
       // Update the search-results textarea with the response
       document.getElementById("grounding").innerHTML = data;
   });
@@ -46,7 +47,7 @@ fetch("/load_gemini_response", {
     output_format: document.getElementById("output_format").value
   })
 })
-.then(response => response.text())
+.then(response => response.json())
 .then(data => {
     // Hide the loading screen
     document.getElementById("loading-screen").style.display = "none";
@@ -78,7 +79,7 @@ document.getElementById("follow-up").addEventListener("click", function() {
       followupprompt: document.getElementById("follow-up-prompt").value
     })
   })
-  .then(response => response.text())
+  .then(response => response.json())
   .then(data => {
       // Hide the loading screen
       document.getElementById("loading-screen").style.display = "none";

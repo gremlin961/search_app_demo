@@ -170,3 +170,14 @@ p {
   overflow-y: auto;
   /*word-wrap: break-word;*/
 }
+
+.prompt-input {
+  border: 1px solid #ccc; /* Thin gray border */
+  padding: 10px;
+  border-radius: 5px;
+  width: 500px;
+  height: 15px;
+  vertical-align: middle;
+  overflow-y: auto;
+  /*word-wrap: break-word;*/
+}
