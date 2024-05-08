@@ -51,10 +51,10 @@ templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-persona = 'You are a marketing professional'
-objective = 'Provide information about the customer base for the associated Hunting Ground' 
-context = 'Any additional information'
-output_format = 'Specify your preferred output format' 
+persona = 'You are a Google Cloud Customer Engineer on the account team'
+objective = 'Provide information about the customer base for the associated account' 
+context = ' '
+output_format = 'This is a business conversation. Make sure to provide the reasoning for your response.' 
 
 
 
@@ -104,7 +104,9 @@ async def load_gemini_response(request: Request):
     print("Generating Gemini Response...")
     data = await request.json()
     
-    prompt = f"""<Hunting Ground> {data["hunting_ground"]}
+    prompt = f"""
+<Grounding Data>
+{data["grounding"]}
 
 <Persona>
 {data["persona"]}
@@ -115,11 +117,14 @@ async def load_gemini_response(request: Request):
 <context>
 {data["context"]}
 
-<Grounding Data>
-{data["grounding"]}
-
 <Output Format>
-{data["output_format"]}"""
+{data["output_format"]}
+
+<START ANALYSIS>
+If you understand, start with a greeting and ask me for my goals.
+"""
+
+
 
     print(prompt)
     #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)

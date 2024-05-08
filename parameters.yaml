@@ -1,8 +1,8 @@
 'PROJECT_ID': 'YOUR_PROJECT_ID' # The name of your GCP Project
 'REGION': 'us-central1' # Enter your associated region 
 'LOCATION': 'global' # Setting can be us or global
-'DSNAME': 'agent_builder_datastore_name' # The name of the Agen Builder data store
-'DENAME': 'agent_builder_search_app_name' # The name of the Agent Builder search app
+'DSNAME': 'YOUR_DATASTORE_NAME' # The name of the Agen Builder data store
+'DENAME': 'YOU_ENGINE_NAME' # The name of the Agent Builder search app
 
 # Setting if using basic authentication 
 'WEBUSER': 'user' # The username you want to use

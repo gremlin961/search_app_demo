@@ -90,11 +90,18 @@ document.getElementById("follow-up").addEventListener("click", function() {
       document.getElementById("generated_result").innerHTML = data;
       // Show the form with results
       document.getElementById("results_form").style.display = "block";
+      // Clear the follow-up-promt text area
+      document.getElementById("follow-up-prompt").value = "";
   });
   });
 
 
-
+document.getElementById("follow-up-prompt").addEventListener("keypress", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    document.getElementById("follow-up").click();
+  };
+});
 
 
 // Add event listener for the dropdown selection change

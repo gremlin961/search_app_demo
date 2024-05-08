@@ -14,22 +14,28 @@ h2 {
   font-size: 1.2rem; /* Slightly larger font size */
 }
 
-form {
-  background-color: white; /* White background for form */
-  padding: 30px;
-  border-radius: 5px; /* Rounded corners */
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-}
-
 .large-input {
   border: 1px solid #ccc; /* Thin gray border */
   padding: 10px;
   border-radius: 5px;
   width: 500px;
-  height: 100px;
+  height: 75px;
   vertical-align: top;
   text-align: bottom;
   /*overflow-y: scroll;*/
+  /*word-wrap: break-word;*/
+}
+
+.div-large-input {
+  border: 1px solid #ccc; /* Thin gray border */
+  padding: 10px;
+  border-radius: 5px;
+  resize: both;
+  width: 500px;
+  height: 75px;
+  vertical-align: top;
+  text-align: bottom;
+  overflow-y: auto;
   /*word-wrap: break-word;*/
 }
 
@@ -96,14 +102,25 @@ p {
 /* Styles for side-by-side layout */
 .container {
   display: flex;
-  gap: 5%;
+  gap: 1%;
 }
 
 .section {
+  padding-left: 1%;
+  padding-right: 1%;
   float: left; 
   width: 50%;
 }
 
+form {
+  min-height: 83vh;
+  max-height: 83vh;
+  overflow-y: auto;
+  background-color: white; /* White background for form */
+  padding: 30px;
+  border-radius: 5px; /* Rounded corners */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
 
 /* Styles for the processing screen */
 #div2 text{
@@ -156,19 +173,6 @@ p {
   left: 50%;
   width: 200px;
   height: 200px;
-}
-
-.div-large-input {
-  border: 1px solid #ccc; /* Thin gray border */
-  padding: 10px;
-  border-radius: 5px;
-  resize: both;
-  width: 500px;
-  height: 100px;
-  vertical-align: top;
-  text-align: bottom;
-  overflow-y: auto;
-  /*word-wrap: break-word;*/
 }
 
 .prompt-input {

@@ -14,12 +14,11 @@
 <div class="container">
   <div class="section">
     <form>
-      <label for="hunting_ground">Select your Hunting Ground:</label>
+      <label for="hunting_ground">Select your grounding query:</label>
       <select name="hunting_ground" id="hunting_ground">
-        <option value="Scheduled Reset">Scheduled Reset</option>
-        <option value="Fully Unplug">Fully Unplug</option>
-        <option value="Needed Fun">Needed Fun</option>
-        <option value="Keep Me Going">Keep Me Going</option>
+        <option value="Tell me about the account">Tell me about the account</option>
+        <option value="Which GCP services align with this account">Which GCP services align with this account</option>
+        <option value="What are the key focus areas for the account">What are the key focus areas for the account</option>
         <option value="Custom">Custom Query</option> <!-- Add the new "custom" option -->
       </select>
 
@@ -50,9 +49,8 @@
       <textarea name="output_format" id="output_format" class="large-input">{{ output_format }}</textarea>
       <br>
       <br>
-      <button type="button" id="generate">Generate</button> <input type="reset" value="Reset" onClick="window.location = '/';">
+      <button type="button" id="generate">Start Chat</button> <input type="reset" value="Reset" onClick="window.location = '/';">
     </form>
-
   </div>
 
   <div class="section">
