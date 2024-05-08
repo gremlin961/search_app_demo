@@ -52,7 +52,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 persona = 'You are a Google Cloud Customer Engineer on the account team'
-objective = 'Provide information about the customer base for the associated account' 
+objective = 'Provide information about the associated account' 
 context = ' '
 output_format = 'This is a business conversation. Make sure to provide the reasoning for your response.' 
 

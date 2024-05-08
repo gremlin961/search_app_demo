@@ -185,3 +185,27 @@ form {
   overflow-y: auto;
   /*word-wrap: break-word;*/
 }
+
+#user {
+  text-align:right;
+  background-color: rgba(50, 200, 200, .2);
+  border-radius: 5px; /* Rounded corners */
+  border-width: small;
+  border-style: ridge;
+  border-color: silver;
+  padding-right: 1%;
+  padding-left: 5%;
+  margin: 2%;
+}
+
+#gemini {
+  text-align: left;
+  background-color: rgba(50, 200, 100, .2);
+  border-radius: 5px; /* Rounded corners */
+  border-width: small;
+  border-style: ridge;
+  border-color: silver;
+  padding-left: 1%;
+  padding-right: 5%;
+  margin: 2%;
+}

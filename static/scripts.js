@@ -55,7 +55,7 @@ fetch("/load_gemini_response", {
     data = data.replace(/\\n/g, "\n");
     // Update the search-results textarea with the response
     //document.getElementById("generated_result").value = data;
-    document.getElementById("generated_result").innerHTML = data;
+    document.getElementById("generated_result").innerHTML = '<div id="gemini">' + data + '</div>';
     // Show the form with results
     document.getElementById("results_form").style.display = "block";
 });
@@ -86,8 +86,9 @@ document.getElementById("follow-up").addEventListener("click", function() {
       // Replace \n characters with actual line breaks
       data = data.replace(/\\n/g, "\n");
       // Update the search-results textarea with the response
-      //document.getElementById("generated_result").value = data;
-      document.getElementById("generated_result").innerHTML = data;
+      document.getElementById("generated_result").innerHTML += '<div id="user">' + document.getElementById("follow-up-prompt").value + '</div>';
+      document.getElementById("generated_result").innerHTML += '<div id="gemini">' + data + '</div>';
+      //document.getElementById("generated_result").appendChild(data)
       // Show the form with results
       document.getElementById("results_form").style.display = "block";
       // Clear the follow-up-promt text area
