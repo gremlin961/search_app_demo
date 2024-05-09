@@ -134,3 +134,35 @@ if (this.value === "Custom") {
   document.getElementById("custom_query").style.display = "none";
 }
 });
+
+
+
+
+document.getElementById("upload_button").addEventListener("click", function() {
+  const fileInput = document.getElementById('fileInput');
+  const files = fileInput.files; 
+  
+  if (files.length > 0) {
+    // Show the loading screen
+    document.getElementById("loading-screen").style.display = "block";
+    const formData = new FormData();
+
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
+
+    fetch("/upload", {
+      method: "POST",
+      body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+      // Hide the loading screen
+      document.getElementById("loading-screen").style.display = "none";
+      document.getElementById("generated_result").innerHTML += '<div id="gemini">' + data + '</div>';
+      // Show the form with results
+      //document.getElementById("results_form").style.display = "block";
+    console.log(data)
+  }
+)}
+});

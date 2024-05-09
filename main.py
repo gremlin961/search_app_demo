@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Form, Depends
 import uvicorn
+import base64
 import shutil
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -63,6 +64,42 @@ output_format = 'This is a business conversation. Make sure to provide the reaso
 vertexai.init(project=project_id, location=region)
 chat_model = GenerativeModel("gemini-1.5-pro-preview-0409")
 chat = chat_model.start_chat()
+
+
+
+
+def get_mime_type(file_extension):
+  """Returns the MIME type based on the file extension.
+
+  Args:
+    file_extension: The file extension (e.g., "pdf", "mp3", "jpg").
+
+  Returns:
+    The MIME type as a string, or None if the extension is not recognized.
+  """
+
+  mime_types = {
+    "pdf": "application/pdf",
+    "mpeg": "audio/mpeg",
+    "mp3": "audio/mpeg", # mp3 is technically a subset of MPEG
+    "wav": "audio/wav",
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "txt": "text/plain",
+    "mov": "video/mov",
+    "mp4": "video/mp4",
+    "mpg": "video/mpeg",
+    "avi": "video/avi",
+    "wmv": "video/wmv",
+    "mpegps": "video/mpegps", 
+    "flv": "video/flv",
+  }
+
+  return mime_types.get(file_extension.lower(), None)
+
+
+
 
 
 
@@ -161,6 +198,32 @@ async def load_gemini_response(request: Request):
     gemini_results = markdown.markdown(gemini_results.text)
     #print(gemini_results)
     return gemini_results
+
+
+
+# Process file uploads
+@app.post("/upload")
+async def upload_file(files: List[UploadFile] = File(...)):
+    encoded_files = []
+    for file in files:
+        file_extension = file.filename.split(".")[-1]
+        print(f"File extension: {file_extension}")
+        mimeType = get_mime_type(file_extension)
+        if mimeType == None:
+            mimeType = ('Unknown')
+        print('The mime type for this file is ' + mimeType)
+        contents = await file.read()
+        encoded_file = base64.b64encode(contents).decode("utf-8")
+        file_content = Part.from_data(data=base64.b64decode(encoded_file), mime_type=mimeType)
+        prompt = "Add this document to your context. If you are able to process it, provide a simple response that it was successfully uploaded"
+        gemini_results = chat.send_message([file_content, prompt])
+        gemini_results = markdown.markdown(gemini_results.text)
+        #print(gemini_results)
+    return gemini_results
+    #return {"filenames": [file.filename for file in files]}
+
+
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
