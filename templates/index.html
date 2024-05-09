@@ -20,6 +20,7 @@
         <option value="Which GCP services align with this account">Which GCP services align with this account</option>
         <option value="What are the key focus areas for the account">What are the key focus areas for the account</option>
         <option value="Custom">Custom Query</option> <!-- Add the new "custom" option -->
+        <option value="VAIS">VAIS Grounding</option> <!-- Use full VIAS Data Store grounding -->
       </select>
 
       <!-- Custom query textarea, initially hidden -->
@@ -33,7 +34,7 @@
         <img src="/static/loading.gif" alt="Loading">
       </div>
 
-      <label for="grounding">Grounding:</label>
+      <label for="grounding" id="grounding_label">Grounding:</label>
       <div name="grounding" id="grounding" class="div-large-input" contenteditable="true"></div>
 
       <label for="persona">Persona:</label>

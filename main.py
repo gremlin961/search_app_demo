@@ -13,7 +13,7 @@ import markdown
 
 
 import vertexai
-from vertexai.preview.generative_models import GenerativeModel, Part
+from vertexai.preview.generative_models import GenerativeModel, Part, Tool
 from google.cloud import aiplatform
 from google.cloud import aiplatform_v1beta1 as vertex_ai
 from typing import List
@@ -34,6 +34,7 @@ with open("parameters.yaml", "r") as yamlfile:
 project_id = parameters['PROJECT_ID']
 location = parameters['LOCATION']
 region = parameters['REGION']
+data_store_id = parameters['DSNAME']
 engine_id = parameters['DENAME']
 
 # ---- Uncomment the lines below to use basic authentication if needed. Also see the @app.get("/") section
@@ -91,6 +92,18 @@ async def load_search_results(request: Request):
   data = await request.json()
   if (data["hunting_ground"] == 'Custom'):
      search_query = data["custom_query"]
+  elif (data["hunting_ground"] == 'VAIS'):
+      # Set the global variable for chat_model to include the VAIS data store
+      global chat_model
+      tools = [
+        Tool.from_retrieval(
+                retrieval=GenerativeModel.grounding.Retrieval(
+                    source=GenerativeModel.grounding.VertexAISearch(datastore=f"projects/{project_id}/locations/{location}/collections/default_collection/dataStores/{data_store_id}"),
+                    disable_attribution=False,
+                )
+            ),
+        ]
+      chat_model = GenerativeModel("gemini-1.5-pro-preview-0409", tools=tools,)
   else: 
      search_query = "Tell me about the " + data["hunting_ground"] + " HG"
   search_results = vertexModels.search_sample(project_id, location, engine_id, search_query)

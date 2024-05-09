@@ -109,11 +109,27 @@ document.getElementById("follow-up-prompt").addEventListener("keypress", functio
 document.getElementById("hunting_ground").addEventListener("change", function() {
 // Check if "custom" is selected
 if (this.value === "Custom") {
+  console.log(this.value);
   // Show the custom query textarea and label
+  document.getElementById("grounding_label").style.display = "block";
+  document.getElementById("grounding").style.display = "block";
+  document.getElementById("load-button").style.display = "block";
   document.getElementById("custom_query_label").style.display = "block";
   document.getElementById("custom_query").style.display = "block";
-} else {
+} else if (this.value === "VAIS") {
+  console.log(this.value);
   // Hide the custom query textarea and label
+  document.getElementById("grounding_label").style.display = "none";
+  document.getElementById("grounding").style.display = "none";
+  document.getElementById("load-button").style.display = "none";
+  document.getElementById("custom_query_label").style.display = "none";
+  document.getElementById("custom_query").style.display = "none";
+} else {
+  console.log(this.value);
+  // Hide the custom query textarea and label
+  document.getElementById("grounding_label").style.display = "block";
+  document.getElementById("grounding").style.display = "block";
+  document.getElementById("load-button").style.display = "block";
   document.getElementById("custom_query_label").style.display = "none";
   document.getElementById("custom_query").style.display = "none";
 }
