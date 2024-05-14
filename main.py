@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Form, Dep
 import uvicorn
 import base64
 import shutil
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 import json
 from pkg import vertexModels
@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 import yaml
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import markdown
+import asyncio
 
 
 
@@ -184,14 +185,21 @@ If you understand, start with a greeting and ask me for my goals.
 
     print(prompt)
     #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)
-    gemini_results = chat.send_message(prompt)
-    gemini_results = markdown.markdown(gemini_results.text)
-    #print(gemini_results)
-    return gemini_results
+
+    async def chat_stream():
+        for chunk in chat._send_message_streaming(prompt):
+        #async for chunk in anyio.to_async_iterable(chat._send_message_streaming(prompt)):
+            if chunk.text:
+                # Use a generator to yield content as it's received
+                yield markdown.markdown(chunk.text)
+                await asyncio.sleep(0.01) # Introduce a small delay 
+
+    return StreamingResponse(chat_stream(), media_type="text/html")  
+
 
 
 @app.post("/load_gemini_follow-up")
-async def load_gemini_response(request: Request):
+async def load_gemini_follow_up(request: Request):
     print("Generating Gemini Response...")
     data = await request.json()
 
@@ -200,12 +208,13 @@ async def load_gemini_response(request: Request):
 
     print(prompt)
     #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)
-    gemini_results = chat.send_message(prompt)
-    gemini_results = markdown.markdown(gemini_results.text)
-    #print(gemini_results)
-    return gemini_results
+    async def chat_stream():
+        for chunk in chat._send_message_streaming(prompt):
+            if chunk.text:
+                yield markdown.markdown(chunk.text)
+                await asyncio.sleep(0.01) # Introduce a small delay
 
-
+    return StreamingResponse(chat_stream(), media_type="text/html") 
 
 # Process file uploads
 @app.post("/upload")
@@ -227,6 +236,9 @@ async def upload_file(files: List[UploadFile] = File(...)):
         #print(gemini_results)
     return gemini_results
     #return {"filenames": [file.filename for file in files]}
+
+
+
 
 
 
