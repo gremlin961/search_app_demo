@@ -1,8 +1,0 @@
-'PROJECT_ID': 'YOUR_PROJECT_ID'
-'REGION': 'us-central1'
-'LOCATION': 'us'
-'DSNAME': 'agent_builder_datastore_name'
-'DENAME': 'agent_builder_engine'
-
-'WEBUSER': 'set_a_username'
-'WEBPASS': 'set_a_password'
