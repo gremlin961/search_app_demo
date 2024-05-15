@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 import yaml
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import markdown
+import re
 import asyncio
 
 
@@ -191,7 +192,11 @@ If you understand, start with a greeting and ask me for my goals.
         #async for chunk in anyio.to_async_iterable(chat._send_message_streaming(prompt)):
             if chunk.text:
                 # Use a generator to yield content as it's received
-                yield markdown.markdown(chunk.text)
+                gemini_response = markdown.markdown(chunk.text)
+                gemini_response = re.sub(r"<\/?p>", " ", gemini_response)
+                print(gemini_response)
+                yield gemini_response
+                #yield chunk.text
                 await asyncio.sleep(0.01) # Introduce a small delay 
 
     return StreamingResponse(chat_stream(), media_type="text/html")  
@@ -211,7 +216,11 @@ async def load_gemini_follow_up(request: Request):
     async def chat_stream():
         for chunk in chat._send_message_streaming(prompt):
             if chunk.text:
-                yield markdown.markdown(chunk.text)
+                gemini_response = markdown.markdown(chunk.text)
+                gemini_response = re.sub(r"<\/?p>", " ", gemini_response)
+                print(gemini_response)
+                yield gemini_response
+                #yield chunk.text
                 await asyncio.sleep(0.01) # Introduce a small delay
 
     return StreamingResponse(chat_stream(), media_type="text/html") 

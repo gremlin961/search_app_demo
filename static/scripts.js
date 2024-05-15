@@ -26,6 +26,9 @@ document.getElementById("load-button").addEventListener("click", function () {
 });
 
 document.getElementById("generate").addEventListener("click", function () {
+  // Show the loading screen
+  document.getElementById("loading-screen").style.display = "block";
+  // Set the variable for the parent div
   const resultContainer = document.getElementById("generated_result");
 
   // Make AJAX call to load search results
@@ -45,6 +48,9 @@ document.getElementById("generate").addEventListener("click", function () {
   })
     .then((response) => {
       const reader = response.body.getReader();
+      const chunkDiv = document.createElement('div');
+      chunkDiv.id = 'gemini';
+      resultContainer.appendChild(chunkDiv);
       return new ReadableStream({
         start(controller) {
           function push() {
@@ -57,13 +63,15 @@ document.getElementById("generate").addEventListener("click", function () {
               // Convert Uint8Array to string, decode and display
               const textDecoder = new TextDecoder("utf-8");
               const chunk = textDecoder.decode(value);
-              console.log(chunk);
+              //console.log(chunk);
               
               // **Append the chunk directly to the container**
-              const chunkDiv = document.createElement('div');
-              chunkDiv.id = 'gemini';
-              chunkDiv.innerHTML = chunk;
-              resultContainer.appendChild(chunkDiv); 
+              //const chunkDiv = document.createElement('div');
+              //chunkDiv.id = 'gemini';
+              //chunkDiv.appendChild.innerHTML = chunk;
+              chunkDiv.innerHTML += chunk;
+              //chunkDiv.append(chunk);
+              //resultContainer.appendChild(chunkDiv); 
 
               // Immediately call push() to process the next chunk
               push(); 
@@ -74,6 +82,8 @@ document.getElementById("generate").addEventListener("click", function () {
       });
     })
     .then((stream) => {
+      // Hide the loading screen
+      document.getElementById("loading-screen").style.display = "none";
       // Show the form with results
       document.getElementById("results_form").style.display = "block";
     });
@@ -103,6 +113,9 @@ document.getElementById("follow-up").addEventListener("click", function () {
   })
     .then((response) => {
       const reader = response.body.getReader();
+      const chunkDiv = document.createElement('div');
+      chunkDiv.id = 'gemini';
+      resultContainer.appendChild(chunkDiv);
       return new ReadableStream({
         start(controller) {
           function push() {
@@ -118,10 +131,11 @@ document.getElementById("follow-up").addEventListener("click", function () {
               console.log(chunk);
 
               // **Append the chunk directly to the container**
-              const chunkDiv = document.createElement('div');
-              chunkDiv.id = 'gemini';
-              chunkDiv.innerHTML = chunk;
-              resultContainer.appendChild(chunkDiv); 
+              //const chunkDiv = document.createElement('div');
+              //chunkDiv.id = 'gemini';
+              chunkDiv.innerHTML += chunk;
+              //chunkDiv.append(chunk);
+              //resultContainer.appendChild(chunkDiv); 
 
               // Immediately call push() to process the next chunk
               push();
