@@ -1,3 +1,6 @@
+import * as smd from '/static/smd.js'; 
+
+
 document.getElementById("load-button").addEventListener("click", function () {
   // Show the loading screen
   document.getElementById("loading-screen").style.display = "block";
@@ -25,6 +28,7 @@ document.getElementById("load-button").addEventListener("click", function () {
     });
 });
 
+
 document.getElementById("generate").addEventListener("click", function () {
   // Show the loading screen
   document.getElementById("loading-screen").style.display = "block";
@@ -51,28 +55,26 @@ document.getElementById("generate").addEventListener("click", function () {
       const chunkDiv = document.createElement('div');
       chunkDiv.id = 'gemini';
       resultContainer.appendChild(chunkDiv);
+
+      const renderer = smd.default_renderer(chunkDiv);
+      const parser = smd.parser(renderer)
+
       return new ReadableStream({
         start(controller) {
           function push() {
             reader.read().then(({ done, value }) => {
               if (done) {
                 controller.close();
+                smd.parser_end(parser)
                 return;
               }
               controller.enqueue(value);
               // Convert Uint8Array to string, decode and display
               const textDecoder = new TextDecoder("utf-8");
               const chunk = textDecoder.decode(value);
-              //console.log(chunk);
               
               // **Append the chunk directly to the container**
-              //const chunkDiv = document.createElement('div');
-              //chunkDiv.id = 'gemini';
-              //chunkDiv.appendChild.innerHTML = chunk;
-              chunkDiv.innerHTML += chunk;
-              //chunkDiv.append(chunk);
-              //resultContainer.appendChild(chunkDiv); 
-
+              smd.parser_write(parser, chunk)
               // Immediately call push() to process the next chunk
               push(); 
             });
@@ -95,7 +97,7 @@ document.getElementById("follow-up").addEventListener("click", function () {
     '<div id="user">' +
     document.getElementById("follow-up-prompt").value +
     "</div>";
-  userPrompt = document.getElementById("follow-up-prompt").value;
+  const userPrompt = document.getElementById("follow-up-prompt").value;
   // Clear the follow-up-prompt text area
   document.getElementById("follow-up-prompt").value = "";
 
@@ -116,26 +118,28 @@ document.getElementById("follow-up").addEventListener("click", function () {
       const chunkDiv = document.createElement('div');
       chunkDiv.id = 'gemini';
       resultContainer.appendChild(chunkDiv);
+
+      const renderer = smd.default_renderer(chunkDiv);
+      const parser = smd.parser(renderer)
+
       return new ReadableStream({
         start(controller) {
           function push() {
             reader.read().then(({ done, value }) => {
               if (done) {
                 controller.close();
+                smd.parser_end(parser)
                 return;
               }
               controller.enqueue(value);
               // Convert Uint8Array to string, decode and display
               const textDecoder = new TextDecoder("utf-8");
               const chunk = textDecoder.decode(value);
-              console.log(chunk);
+
+              //console.log(chunk_html)
 
               // **Append the chunk directly to the container**
-              //const chunkDiv = document.createElement('div');
-              //chunkDiv.id = 'gemini';
-              chunkDiv.innerHTML += chunk;
-              //chunkDiv.append(chunk);
-              //resultContainer.appendChild(chunkDiv); 
+              smd.parser_write(parser, chunk)
 
               // Immediately call push() to process the next chunk
               push();

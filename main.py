@@ -1,7 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Form, Depends
 import uvicorn
 import base64
-import shutil
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 import json
@@ -10,7 +9,6 @@ from fastapi.staticfiles import StaticFiles
 import yaml
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import markdown
-import re
 import asyncio
 
 
@@ -22,9 +20,6 @@ from google.cloud import aiplatform_v1beta1 as vertex_ai
 from typing import List
 from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
-
-
-
 
 
 app = FastAPI()
@@ -53,6 +48,8 @@ templates = Jinja2Templates(directory="templates")
 
 # Specify the location for static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
 
 
 persona = 'You are a Google Cloud Customer Engineer on the account team'
@@ -192,8 +189,7 @@ If you understand, start with a greeting and ask me for my goals.
         #async for chunk in anyio.to_async_iterable(chat._send_message_streaming(prompt)):
             if chunk.text:
                 # Use a generator to yield content as it's received
-                gemini_response = markdown.markdown(chunk.text)
-                gemini_response = re.sub(r"<\/?p>", " ", gemini_response)
+                gemini_response = chunk.text
                 print(gemini_response)
                 yield gemini_response
                 #yield chunk.text
@@ -216,8 +212,7 @@ async def load_gemini_follow_up(request: Request):
     async def chat_stream():
         for chunk in chat._send_message_streaming(prompt):
             if chunk.text:
-                gemini_response = markdown.markdown(chunk.text)
-                gemini_response = re.sub(r"<\/?p>", " ", gemini_response)
+                gemini_response = chunk.text
                 print(gemini_response)
                 yield gemini_response
                 #yield chunk.text
