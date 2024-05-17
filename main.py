@@ -12,6 +12,8 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import markdown
 import asyncio
 
+import mimetypes
+
 
 # Import Vertex AI libraries
 import vertexai
@@ -69,36 +71,41 @@ chat_model = GenerativeModel("gemini-1.5-pro-preview-0409")
 chat = chat_model.start_chat()
 
 
-# --- Helper function to get MIME type from file extension
-def get_mime_type(file_extension):
-  """Returns the MIME type based on the file extension.
+# --- Helper function to verify supported MIME type for file uploads
+def validate_file_type(file: UploadFile):
+    """Validates the MIME type of an uploaded file.
 
-  Args:
-    file_extension: The file extension (e.g., "pdf", "mp3", "jpg").
+    Args:
+        file: The uploaded file (UploadFile object).
 
-  Returns:
-    The MIME type as a string, or None if the extension is not recognized.
-  """
+    Returns:
+        True if the file type is supported, otherwise returns a string with an error message.
+    """
 
-  mime_types = {
-    "pdf": "application/pdf",
-    "mpeg": "audio/mpeg",
-    "mp3": "audio/mpeg", # mp3 is technically a subset of MPEG
-    "wav": "audio/wav",
-    "png": "image/png",
-    "jpg": "image/jpeg",
-    "jpeg": "image/jpeg",
-    "txt": "text/plain",
-    "mov": "video/mov",
-    "mp4": "video/mp4",
-    "mpg": "video/mpeg",
-    "avi": "video/avi",
-    "wmv": "video/wmv",
-    "mpegps": "video/mpegps", 
-    "flv": "video/flv",
-  }
+    supported_mime_types = [
+        "application/pdf",
+        "audio/mpeg",
+        "audio/wav",
+        "image/png",
+        "image/jpeg",
+        "text/plain",
+        "video/mov",
+        "video/mp4",
+        "video/mpeg",
+        "video/avi",
+        "video/wmv",
+        "video/mpegps",
+        "video/flv"
+    ]
 
-  return mime_types.get(file_extension.lower(), None)
+    mimeType, encoding = mimetypes.guess_type(file.filename)
+    if mimeType is None:
+        mimeType = 'Unknown'
+
+    if mimeType not in supported_mime_types and not mimeType.startswith("text/"):  
+        return f"Unsupported file type: {mimeType}" 
+
+    return True
 
 
 
@@ -112,13 +119,8 @@ def get_mime_type(file_extension):
 #            status_code=401, detail="Invalid credentials", headers={"WWW-Authenticate": "Basic"}
 #        )
 def home(request: Request):
-    hunting_grounds = [
-        "Scheduled Reset",
-        "Fully Unplug",
-        "Needed Fun",
-        "Keep Me Going"
-    ]
-    return templates.TemplateResponse("index.html", {"request": request, "persona": persona, "objective": objective, "context": context, "output_format": output_format, "hunting_grounds": hunting_grounds})
+
+    return templates.TemplateResponse("index.html", {"request": request, "persona": persona, "objective": objective, "context": context, "output_format": output_format})
 
 
 
@@ -127,12 +129,12 @@ def home(request: Request):
 async def load_search_results(request: Request):
   print("Generating grounding data from document search...")
   data = await request.json()
-  if (data["hunting_ground"] == 'Custom'):
+  if (data["vais_search_query"] == 'Custom'):
      search_query = data["custom_query"]
-  elif (data["hunting_ground"] == 'VAIS'):
+  elif (data["vais_search_query"] == 'VAIS'):
       print("Converting to VAIS search")
   else: 
-     search_query =  data["hunting_ground"] 
+     search_query =  data["vais_search_query"] 
 
   # Call vertexModels.search_sample function to execute the search
   search_results = vertexModels.search_sample(project_id, location, engine_id, search_query)
@@ -149,7 +151,7 @@ async def load_search_results(request: Request):
 async def load_gemini_response(request: Request):
     data = await request.json()
     # If VAIS grounding is selected, configure Gemini to use the VAIS data store
-    if (data["hunting_ground"] == 'VAIS'):
+    if (data["vais_search_query"] == 'VAIS'):
         # Update the global variables chat_model and chat
         global chat_model, chat
         tools = [
@@ -244,24 +246,37 @@ async def upload_file(files: List[UploadFile] = File(...)):
     encoded_files = []
     for file in files:
         # Get file extension and determine MIME type
-        file_extension = file.filename.split(".")[-1]
-        print(f"File extension: {file_extension}")
-        mimeType = get_mime_type(file_extension)
-        if mimeType == None:
-            mimeType = ('Unknown')
-        print('The mime type for this file is ' + mimeType)
-        # Read and encode the file content
-        contents = await file.read()
-        encoded_file = base64.b64encode(contents).decode("utf-8")
-        # Create a 'Part' object from the file content
-        file_content = Part.from_data(data=base64.b64decode(encoded_file), mime_type=mimeType)
-        # Define prompt for Gemini to add the document to its context
-        prompt = "Add this document to your context. If you are able to process it, provide a simple response that it was successfully uploaded"
-        # Send the file content and prompt to Gemini
-        gemini_results = chat.send_message([file_content, prompt])
-        # Format the response as Markdown
+        mimeType, encoding = mimetypes.guess_type(file.filename)
+
+        # Validate the file type
+        validation_result = validate_file_type(file)
+
+        # If validation fails
+        if validation_result is not True:
+            # Return error as JSON 
+            print("ERROR: " + str(validation_result))
+            return JSONResponse((validation_result))         
+        else:
+            # If validation passes, process the file
+            print(f'The mime type for this file is {mimeType}')
+            # Read and encode the file content
+            contents = await file.read()
+            encoded_file = base64.b64encode(contents).decode("utf-8")
+            # Create a 'Part' object from the file content
+            file_content = Part.from_data(data=base64.b64decode(encoded_file), mime_type=mimeType)
+            # Add the file content to the list
+            encoded_files.append(file_content) 
+
+    # Process all collected files after the loop 
+    if encoded_files:  # Check if any valid files were uploaded
+        prompt = "Add these documents to your context. If you are able to process them, provide a simple response that they were successfully uploaded"
+        # Combine files and prompt
+        gemini_results = chat.send_message(encoded_files + [prompt]) 
         gemini_results = markdown.markdown(gemini_results.text)
-    return gemini_results
+        print(repr(gemini_results))
+        return gemini_results 
+    else:
+        return JSONResponse({"error": "No valid files uploaded."}) 
 
 
 

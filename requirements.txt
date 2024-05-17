@@ -12,3 +12,4 @@ pyyaml
 passlib
 markdown
 asyncio
+mimetype

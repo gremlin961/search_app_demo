@@ -8,7 +8,7 @@ document.getElementById("load-button").addEventListener("click", function () {
 
   // Prepare data to send in the AJAX request
   const requestData = {
-    hunting_ground: document.getElementById("hunting_ground").value, // Get the selected hunting ground
+    vais_search_query: document.getElementById("vais_search_query").value, // Get the selected vais search query
     custom_query: document.getElementById("custom_query").value   // Get the custom query (if applicable)
   };
 
@@ -42,7 +42,7 @@ document.getElementById("generate").addEventListener("click", function () {
 
   // Prepare data to send in the AJAX request
   const requestData = {
-    hunting_ground: document.getElementById("hunting_ground").value,  // Get the selected hunting ground
+    vais_search_query: document.getElementById("vais_search_query").value,  // Get the selected vais search query
     persona: document.getElementById("persona").value,              // Get the defined persona
     objective: document.getElementById("objective").value,            // Get the conversation objective
     context: document.getElementById("context").value,                // Get additional context information
@@ -180,9 +180,9 @@ document.getElementById("follow-up-prompt").addEventListener("keypress", functio
   };
 });
 
-// Add an event listener to the hunting ground dropdown
-document.getElementById("hunting_ground").addEventListener("change", function () {
-  // Show/hide elements based on the selected hunting ground 
+// Add an event listener to the vais search query dropdown
+document.getElementById("vais_search_query").addEventListener("change", function () {
+  // Show/hide elements based on the selected vais search query 
   if (this.value === "Custom") {
     // If 'Custom' is selected, show the custom query textarea and related elements
     document.getElementById("grounding_label").style.display = "block";
@@ -198,7 +198,7 @@ document.getElementById("hunting_ground").addEventListener("change", function ()
     document.getElementById("custom_query_label").style.display = "none";
     document.getElementById("custom_query").style.display = "none";
   } else {
-    // For other hunting grounds, show the grounding area but hide custom query elements
+    // For other vais search queries, show the grounding area but hide custom query elements
     document.getElementById("grounding_label").style.display = "block";
     document.getElementById("grounding").style.display = "block";
     document.getElementById("load-button").style.display = "block";
@@ -215,9 +215,10 @@ document.getElementById("upload_button").addEventListener("click", function () {
 
   // Proceed only if files are selected
   if (files.length > 0) {
+    
     // Show the loading screen while uploading
     document.getElementById("loading-screen").style.display = "block";
-    
+
     // Create a FormData object to send the files
     const formData = new FormData();
     for (let i = 0; i < files.length; i++) {
@@ -229,7 +230,14 @@ document.getElementById("upload_button").addEventListener("click", function () {
       method: "POST",
       body: formData
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) { 
+          return response.text().then(data => { throw new Error(data.error); }); 
+        }
+        
+        return response.json(); // Assuming the success response is plain text
+        
+      })
       .then((data) => {
         // Hide the loading screen after upload is complete
         document.getElementById("loading-screen").style.display = "none";
@@ -237,6 +245,12 @@ document.getElementById("upload_button").addEventListener("click", function () {
         // Append the response (likely a confirmation message) to the results area
         document.getElementById("generated_result").innerHTML +=
           '<div id="gemini">' + data + "</div>"; 
+      })
+      .catch(error => {
+          // Handle the error
+          alert(error.message); 
+          // Hide the loading screen if there's an error
+          document.getElementById("loading-screen").style.display = "none";
       });
   }
 });
