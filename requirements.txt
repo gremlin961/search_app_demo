@@ -11,3 +11,4 @@ uvicorn
 pyyaml
 passlib
 markdown
+asyncio

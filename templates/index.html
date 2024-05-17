@@ -3,6 +3,7 @@
 <head>
     <title>Gemini Chat Shell</title>
     <link rel="stylesheet" type="text/css" href="/static/styles.css" />
+    <!-- Import the Streaming Markdown library -->
     <script type="module">
       import * as smd from "/static/smd.js"
     </script>
@@ -12,69 +13,90 @@
   <div style="display: flex; align-items: left;">
     <img src="/static/gemini.png" alt="Gemini Logo" style="width: 135px; height: 50px; margin-right: 10px;">
     <h1>Grounded Chat Demo</h1>
-</div>
-
-<div class="container">
-  <div class="section">
-    <form>
-      <label for="hunting_ground">Select your grounding query:</label>
-      <select name="hunting_ground" id="hunting_ground">
-        <option value="Tell me about the account">Tell me about the account</option>
-        <option value="Which GCP services align with this account">Which GCP services align with this account</option>
-        <option value="What are the key focus areas for the account">What are the key focus areas for the account</option>
-        <option value="Custom">Custom Query</option> <!-- Add the new "custom" option -->
-        <option value="VAIS">VAIS Grounding</option> <!-- Use full VIAS Data Store grounding -->
-      </select>
-
-      <!-- Custom query textarea, initially hidden -->
-      <label for="custom_query" id="custom_query_label" style="display: none;">Custom Query:</label>
-      <textarea name="custom_query" id="custom_query" class="large-input" style="display: none;"></textarea>
-
-      <button type="button" id="load-button">Load</button>
-
-      <!-- Loading screen -->
-      <div id="loading-screen" style="display: none;">
-        <img src="/static/loading.gif" alt="Loading">
-      </div>
-
-      <label for="grounding" id="grounding_label">Grounding:</label>
-      <div name="grounding" id="grounding" class="div-large-input" contenteditable="true"></div>
-
-      <label for="persona">Persona:</label>
-      <textarea name="persona" id="persona" class="large-input">{{ persona }}</textarea>
-
-      <label for="objective">Objective:</label>
-      <textarea name="objective" id="objective" class="large-input">{{ objective }}</textarea>
-
-      <label for="context">Context:</label>
-      <textarea name="context" id="context" class="large-input">{{ context }}</textarea>
-
-      <label for="output_format">Output Format:</label>
-      <textarea name="output_format" id="output_format" class="large-input">{{ output_format }}</textarea>
-      <br>
-      <br>
-      <button type="button" id="generate">Start Chat</button> <input type="reset" value="Reset" onClick="window.location = '/';">
-    </form>
   </div>
 
-  <div class="section">
-    <form name="results_form" id="results_form" style="display: none;">
-    <!--<form name="results_form" id="results_form">-->
-      <h2>Results:</h2>
-      <p id='generated_result'></p>
-      <textarea name="follow-up-prompt" id="follow-up-prompt" class="prompt-input"></textarea> 
-      <button type="button" id="follow-up">Send</button>
+  <!-- Main container for the page layout -->
+  <div class="container">
 
-      <input type="file" id="fileInput" multiple> <button type="button" id="upload_button">Upload</button>
+    <!-- Left section for input form -->
+    <div class="section">
+      <form>
+        <!-- Select box for choosing the grounding query -->
+        <label for="hunting_ground">Select your grounding query:</label>
+        <select name="hunting_ground" id="hunting_ground">
+          <option value="Tell me about the account">Tell me about the account</option>
+          <option value="Which GCP services align with this account">Which GCP services align with this account</option>
+          <option value="What are the key focus areas for the account">What are the key focus areas for the account</option>
+          <option value="Custom">Custom Query</option> <!-- Option for a custom query -->
+          <option value="VAIS">VAIS Grounding</option> <!-- Option for using the full Vertex AI Search data store -->
+        </select>
+
+        <!-- Textarea for custom query, initially hidden -->
+        <label for="custom_query" id="custom_query_label" style="display: none;">Custom Query:</label>
+        <textarea name="custom_query" id="custom_query" class="large-input" style="display: none;"></textarea>
+
+        <!-- Button to load grounding data based on the selected query -->
+        <button type="button" id="load-button">Load</button>
+
+        <!-- Loading screen displayed while fetching grounding data -->
+        <div id="loading-screen" style="display: none;">
+          <img src="/static/loading.gif" alt="Loading">
+        </div>
+
+        <!-- Div to display the grounding data, editable -->
+        <label for="grounding" id="grounding_label">Grounding:</label>
+        <div name="grounding" id="grounding" class="div-large-input" contenteditable="true"></div>
+
+        <!-- Textarea for setting the persona of the LLM -->
+        <label for="persona">Persona:</label>
+        <textarea name="persona" id="persona" class="large-input">{{ persona }}</textarea>
+
+        <!-- Textarea for setting the objective of the conversation -->
+        <label for="objective">Objective:</label>
+        <textarea name="objective" id="objective" class="large-input">{{ objective }}</textarea>
+
+        <!-- Textarea for providing context to the conversation -->
+        <label for="context">Context:</label>
+        <textarea name="context" id="context" class="large-input">{{ context }}</textarea>
+
+        <!-- Textarea for specifying the desired output format -->
+        <label for="output_format">Output Format:</label>
+        <textarea name="output_format" id="output_format" class="large-input">{{ output_format }}</textarea>
+
+        <!-- Buttons to start the chat and reset the form -->
+        <br>
+        <br>
+        <button type="button" id="generate">Start Chat</button> 
+        <input type="reset" value="Reset" onClick="window.location = '/';">
+      </form>
+    </div>
+
+    <!-- Right section to display chat results -->
+    <div class="section">
+      <!-- Form to display results and handle follow-up inputs -->
+      <form name="results_form" id="results_form" style="display: none;">
+        <h2>Results:</h2>
+
+        <!-- Paragraph to display the generated chat response -->
+        <p id='generated_result'></p>
+
+        <!-- Textarea for user's follow-up prompt -->
+        <textarea name="follow-up-prompt" id="follow-up-prompt" class="prompt-input"></textarea> 
+
+        <!-- Button to send the follow-up prompt -->
+        <button type="button" id="follow-up">Send</button>
+
+        <!-- Input for uploading files -->
+        <input type="file" id="fileInput" multiple> 
+        <!-- Button to upload the selected files -->
+        <button type="button" id="upload_button">Upload</button>
 
       </form>
-    </form>
+    </div>
   </div>
-</div>
 
+  <!-- Import the JavaScript file for handling user interactions -->
+  <script type="module" src="/static/scripts.js"></script>
 
 </body>
-
-<script type="module" src="/static/scripts.js"></script>
-
 </html>

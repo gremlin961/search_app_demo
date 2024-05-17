@@ -1,3 +1,4 @@
+# Import required Python libraries
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Form, Depends
 import uvicorn
 import base64
@@ -12,7 +13,7 @@ import markdown
 import asyncio
 
 
-
+# Import Vertex AI libraries
 import vertexai
 from vertexai.preview.generative_models import GenerativeModel, Part, Tool, grounding
 from google.cloud import aiplatform
@@ -22,18 +23,22 @@ from google.api_core.client_options import ClientOptions
 from google.cloud import discoveryengine_v1beta as discoveryengine
 
 
+# Initialize the FastAPI app
 app = FastAPI()
 
-# Read the gcp_parameters file for related project information
+
+# Read project parameters from YAML file
 with open("parameters.yaml", "r") as yamlfile:
     parameters = yaml.safe_load(yamlfile)
 
-# Initialize the variables
+
+# Set project-related variables from parameters
 project_id = parameters['PROJECT_ID']
 location = parameters['LOCATION']
 region = parameters['REGION']
 data_store_id = parameters['DSNAME']
 engine_id = parameters['DENAME']
+
 
 # ---- Uncomment the lines below to use basic authentication if needed. Also see the @app.get("/") section
 # Pull the username and password info for the web service from the gcp_parameters file
@@ -43,30 +48,28 @@ engine_id = parameters['DENAME']
 #security = HTTPBasic()
 
 
-# Specify the location for the Jinja templates
+# Configure Jinja2 templates directory
 templates = Jinja2Templates(directory="templates")
 
-# Specify the location for static files
+
+# Mount static files directory
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-
-
+# --- Set initial values for persona, objective, context, and output format 
 persona = 'You are a Google Cloud Customer Engineer on the account team'
 objective = 'Provide information about the associated account' 
 context = ' '
 output_format = 'This is a business conversation. Make sure to provide the reasoning for your response.' 
 
 
-
-
+# Initialize Gemini Pro chat model
 vertexai.init(project=project_id, location=region)
 chat_model = GenerativeModel("gemini-1.5-pro-preview-0409")
 chat = chat_model.start_chat()
 
 
-
-
+# --- Helper function to get MIME type from file extension
 def get_mime_type(file_extension):
   """Returns the MIME type based on the file extension.
 
@@ -100,9 +103,7 @@ def get_mime_type(file_extension):
 
 
 
-
-
-
+# --- Define the home route
 @app.get("/")
 # --- Uncomment the below lines and comment out the following def statement to enable basic security
 #def home(request: Request, credentials: HTTPBasicCredentials = Depends(security)):
@@ -121,7 +122,7 @@ def home(request: Request):
 
 
 
-
+# --- Route to load search results from Vertex AI Search 
 @app.post("/load_search_results")
 async def load_search_results(request: Request):
   print("Generating grounding data from document search...")
@@ -131,18 +132,25 @@ async def load_search_results(request: Request):
   elif (data["hunting_ground"] == 'VAIS'):
       print("Converting to VAIS search")
   else: 
-     search_query = "Tell me about the " + data["hunting_ground"] + " HG"
+     search_query =  data["hunting_ground"] 
+
+  # Call vertexModels.search_sample function to execute the search
   search_results = vertexModels.search_sample(project_id, location, engine_id, search_query)
+  # Extract and format grounding data
   grounding_data = search_results.summary.summary_text
   grounding_data = markdown.markdown(grounding_data)
   print(grounding_data)
   return str(grounding_data)
 
+
+
+# --- Route to get Gemini response 
 @app.post("/load_gemini_response")
 async def load_gemini_response(request: Request):
     data = await request.json()
+    # If VAIS grounding is selected, configure Gemini to use the VAIS data store
     if (data["hunting_ground"] == 'VAIS'):
-        # Set the global variable for chat_model to include the VAIS data store
+        # Update the global variables chat_model and chat
         global chat_model, chat
         tools = [
         Tool.from_retrieval(
@@ -153,52 +161,59 @@ async def load_gemini_response(request: Request):
             ),
         ]
         print("Setting the grounding data")
+        # Re-initialize the chat model with grounding tools
         chat_model = GenerativeModel("gemini-1.5-pro-preview-0409", tools=tools,)
         chat = chat_model.start_chat()
 
     print("Generating Gemini Response...")
     data = await request.json()
     
+    # Construct the prompt for Gemini, including grounding data, persona, etc. 
     prompt = f"""
-<Grounding Data>
+<grounding data>
 {data["grounding"]}
+</grounding data>
 
-<Persona>
+<persona>
 {data["persona"]}
+</persona>
 
-<Objective>
+<objective>
 {data["objective"]}
+</objective>
 
 <context>
 {data["context"]}
+</context>
 
-<Output Format>
+<output format>
 {data["output_format"]}
+</output format>
 
-<START ANALYSIS>
+<start analysis>
 If you understand, start with a greeting and ask me for my goals.
+</start analysis>
 """
 
-
-
     print(prompt)
-    #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)
 
+    # Asynchronous function to stream Gemini's response
     async def chat_stream():
         for chunk in chat._send_message_streaming(prompt):
-        #async for chunk in anyio.to_async_iterable(chat._send_message_streaming(prompt)):
             if chunk.text:
                 # Use a generator to yield content as it's received
                 gemini_response = chunk.text
                 print(gemini_response)
                 yield gemini_response
-                #yield chunk.text
-                await asyncio.sleep(0.01) # Introduce a small delay 
+                # Introduce a small delay
+                await asyncio.sleep(0.01)  
 
+    # Return the streamed response as HTML 
     return StreamingResponse(chat_stream(), media_type="text/html")  
 
 
 
+# --- Route to get Gemini follow-up response 
 @app.post("/load_gemini_follow-up")
 async def load_gemini_follow_up(request: Request):
     print("Generating Gemini Response...")
@@ -208,44 +223,48 @@ async def load_gemini_follow_up(request: Request):
     prompt = f"""{data["followupprompt"]}"""
 
     print(prompt)
-    #gemini_results = vertexModels.gemini_chat(project_id, region, prompt)
+    # Asynchronous function to stream Gemini's response
     async def chat_stream():
         for chunk in chat._send_message_streaming(prompt):
             if chunk.text:
+                # Use a generator to yield content as it's received
                 gemini_response = chunk.text
                 print(gemini_response)
                 yield gemini_response
-                #yield chunk.text
-                await asyncio.sleep(0.01) # Introduce a small delay
-
+                # Introduce a small delay
+                await asyncio.sleep(0.01) 
+    # Return the streamed response as HTML 
     return StreamingResponse(chat_stream(), media_type="text/html") 
 
-# Process file uploads
+
+
+# --- Route to handle file uploads 
 @app.post("/upload")
 async def upload_file(files: List[UploadFile] = File(...)):
     encoded_files = []
     for file in files:
+        # Get file extension and determine MIME type
         file_extension = file.filename.split(".")[-1]
         print(f"File extension: {file_extension}")
         mimeType = get_mime_type(file_extension)
         if mimeType == None:
             mimeType = ('Unknown')
         print('The mime type for this file is ' + mimeType)
+        # Read and encode the file content
         contents = await file.read()
         encoded_file = base64.b64encode(contents).decode("utf-8")
+        # Create a 'Part' object from the file content
         file_content = Part.from_data(data=base64.b64decode(encoded_file), mime_type=mimeType)
+        # Define prompt for Gemini to add the document to its context
         prompt = "Add this document to your context. If you are able to process it, provide a simple response that it was successfully uploaded"
+        # Send the file content and prompt to Gemini
         gemini_results = chat.send_message([file_content, prompt])
+        # Format the response as Markdown
         gemini_results = markdown.markdown(gemini_results.text)
-        #print(gemini_results)
     return gemini_results
-    #return {"filenames": [file.filename for file in files]}
 
 
 
-
-
-
-
+# --- Run the FastAPI app when executed 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)

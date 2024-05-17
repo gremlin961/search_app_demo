@@ -1,81 +1,96 @@
+// Import the Streaming Markdown parser module
 import * as smd from '/static/smd.js'; 
 
-
+// Add an event listener to the "Load" button
 document.getElementById("load-button").addEventListener("click", function () {
-  // Show the loading screen
+  // Show the loading screen while fetching data
   document.getElementById("loading-screen").style.display = "block";
 
-  // Make AJAX call to load search results
+  // Prepare data to send in the AJAX request
+  const requestData = {
+    hunting_ground: document.getElementById("hunting_ground").value, // Get the selected hunting ground
+    custom_query: document.getElementById("custom_query").value   // Get the custom query (if applicable)
+  };
+
+  // Make an AJAX call to the '/load_search_results' endpoint
   fetch("/load_search_results", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      hunting_ground: document.getElementById("hunting_ground").value,
-      custom_query: document.getElementById("custom_query").value,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestData) 
   })
     .then((response) => response.json())
     .then((data) => {
-      // Hide the loading screen
+      // Hide the loading screen after data is fetched
       document.getElementById("loading-screen").style.display = "none";
-      // Replace \n characters with actual line breaks
+      
+      // Replace escaped newline characters with actual line breaks for display
       data = data.replace(/\\n/g, "\n");
-      //console.log(data);
-      // Update the search-results textarea with the response
+      
+      // Update the "grounding" div with the received data
       document.getElementById("grounding").innerHTML = data;
     });
 });
 
 
+// Add an event listener to the "Start Chat" button
 document.getElementById("generate").addEventListener("click", function () {
-  // Show the loading screen
+  // Show the loading screen while fetching the response
   document.getElementById("loading-screen").style.display = "block";
-  // Set the variable for the parent div
+
+  // Get the container where chat results will be displayed
   const resultContainer = document.getElementById("generated_result");
 
-  // Make AJAX call to load search results
+  // Prepare data to send in the AJAX request
+  const requestData = {
+    hunting_ground: document.getElementById("hunting_ground").value,  // Get the selected hunting ground
+    persona: document.getElementById("persona").value,              // Get the defined persona
+    objective: document.getElementById("objective").value,            // Get the conversation objective
+    context: document.getElementById("context").value,                // Get additional context information
+    grounding: document.getElementById("grounding").innerText,        // Get the grounding data
+    output_format: document.getElementById("output_format").value     // Get the desired output format
+  };
+
+  // Make an AJAX call to the '/load_gemini_response' endpoint
   fetch("/load_gemini_response", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      hunting_ground: document.getElementById("hunting_ground").value,
-      persona: document.getElementById("persona").value,
-      objective: document.getElementById("objective").value,
-      context: document.getElementById("context").value,
-      grounding: document.getElementById("grounding").innerText,
-      output_format: document.getElementById("output_format").value,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestData)
   })
     .then((response) => {
+      // Get a reader for the streaming response body
       const reader = response.body.getReader();
+
+      // Create a div to hold the streamed chat content
       const chunkDiv = document.createElement('div');
       chunkDiv.id = 'gemini';
       resultContainer.appendChild(chunkDiv);
 
+      // Initialize the Streaming Markdown renderer and parser
       const renderer = smd.default_renderer(chunkDiv);
       const parser = smd.parser(renderer)
 
+      // Create a ReadableStream to handle the streamed response
       return new ReadableStream({
         start(controller) {
           function push() {
             reader.read().then(({ done, value }) => {
               if (done) {
+                // Close the stream when done
                 controller.close();
                 smd.parser_end(parser)
                 return;
               }
+              // Enqueue the received chunk for processing
               controller.enqueue(value);
-              // Convert Uint8Array to string, decode and display
+              
+              // Decode the chunk (which is a Uint8Array) to a string
               const textDecoder = new TextDecoder("utf-8");
               const chunk = textDecoder.decode(value);
-              
-              // **Append the chunk directly to the container**
+
+              // Write the decoded chunk to the Streaming Markdown parser
               smd.parser_write(parser, chunk)
-              // Immediately call push() to process the next chunk
+
+              // Immediately process the next chunk
               push(); 
             });
           }
@@ -84,44 +99,48 @@ document.getElementById("generate").addEventListener("click", function () {
       });
     })
     .then((stream) => {
-      // Hide the loading screen
+      // Hide the loading screen once the response stream is established
       document.getElementById("loading-screen").style.display = "none";
-      // Show the form with results
+      // Show the results form 
       document.getElementById("results_form").style.display = "block";
     });
 });
 
+
+// Add an event listener to the "Send" button (for follow-up prompts)
 document.getElementById("follow-up").addEventListener("click", function () {
-  // Update the search-results textarea with the response
-  document.getElementById("generated_result").innerHTML +=
-    '<div id="user">' +
-    document.getElementById("follow-up-prompt").value +
-    "</div>";
+  // Get the user's follow-up prompt
   const userPrompt = document.getElementById("follow-up-prompt").value;
-  // Clear the follow-up-prompt text area
+  
+  // Append the user prompt to the results area
+  document.getElementById("generated_result").innerHTML +=
+    '<div id="user">' + userPrompt + "</div>";
+  
+  // Clear the follow-up prompt input area
   document.getElementById("follow-up-prompt").value = "";
 
+  // Get the container for chat results
   const resultContainer = document.getElementById("generated_result");
 
-  // Make AJAX call to load search results
+  // Make an AJAX call to the '/load_gemini_follow-up' endpoint
   fetch("/load_gemini_follow-up", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      followupprompt: userPrompt,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ followupprompt: userPrompt }) // Send the follow-up prompt
   })
     .then((response) => {
       const reader = response.body.getReader();
+      
+      // Create a div to hold the streamed response content
       const chunkDiv = document.createElement('div');
       chunkDiv.id = 'gemini';
       resultContainer.appendChild(chunkDiv);
 
+      // Initialize the Streaming Markdown renderer and parser
       const renderer = smd.default_renderer(chunkDiv);
       const parser = smd.parser(renderer)
 
+      // Create a ReadableStream to handle the streamed response
       return new ReadableStream({
         start(controller) {
           function push() {
@@ -132,16 +151,14 @@ document.getElementById("follow-up").addEventListener("click", function () {
                 return;
               }
               controller.enqueue(value);
-              // Convert Uint8Array to string, decode and display
+              // Decode the received chunk from Uint8Array to a string
               const textDecoder = new TextDecoder("utf-8");
               const chunk = textDecoder.decode(value);
 
-              //console.log(chunk_html)
-
-              // **Append the chunk directly to the container**
+              // Write the decoded chunk to the Streaming Markdown parser
               smd.parser_write(parser, chunk)
 
-              // Immediately call push() to process the next chunk
+              // Process the next chunk
               push();
             });
           }
@@ -150,40 +167,38 @@ document.getElementById("follow-up").addEventListener("click", function () {
       });
     })
     .then((stream) => {
-      // Show the form with results
+      // Ensure the results form is visible
       document.getElementById("results_form").style.display = "block";
     });
 });
 
+// Allow pressing "Enter" in the follow-up prompt to send the prompt
 document.getElementById("follow-up-prompt").addEventListener("keypress", function(event) {
   if (event.key === "Enter") {
-    event.preventDefault();
-    document.getElementById("follow-up").click();
+    event.preventDefault(); // Prevent default form submission
+    document.getElementById("follow-up").click(); // Trigger the 'Send' button click
   };
 });
 
-// Add event listener for the dropdown selection change
+// Add an event listener to the hunting ground dropdown
 document.getElementById("hunting_ground").addEventListener("change", function () {
-  // Check if "custom" is selected
+  // Show/hide elements based on the selected hunting ground 
   if (this.value === "Custom") {
-    //console.log(this.value);
-    // Show the custom query textarea and label
+    // If 'Custom' is selected, show the custom query textarea and related elements
     document.getElementById("grounding_label").style.display = "block";
     document.getElementById("grounding").style.display = "block";
     document.getElementById("load-button").style.display = "block";
     document.getElementById("custom_query_label").style.display = "block";
     document.getElementById("custom_query").style.display = "block";
   } else if (this.value === "VAIS") {
-    //console.log(this.value);
-    // Hide the custom query textarea and label
+    // If 'VAIS' is selected, hide the custom query elements
     document.getElementById("grounding_label").style.display = "none";
     document.getElementById("grounding").style.display = "none";
     document.getElementById("load-button").style.display = "none";
     document.getElementById("custom_query_label").style.display = "none";
     document.getElementById("custom_query").style.display = "none";
   } else {
-    //console.log(this.value);
-    // Hide the custom query textarea and label
+    // For other hunting grounds, show the grounding area but hide custom query elements
     document.getElementById("grounding_label").style.display = "block";
     document.getElementById("grounding").style.display = "block";
     document.getElementById("load-button").style.display = "block";
@@ -192,30 +207,36 @@ document.getElementById("hunting_ground").addEventListener("change", function ()
   }
 });
 
+
+// Add an event listener for file uploads
 document.getElementById("upload_button").addEventListener("click", function () {
   const fileInput = document.getElementById("fileInput");
   const files = fileInput.files;
 
+  // Proceed only if files are selected
   if (files.length > 0) {
-    // Show the loading screen
+    // Show the loading screen while uploading
     document.getElementById("loading-screen").style.display = "block";
+    
+    // Create a FormData object to send the files
     const formData = new FormData();
-
     for (let i = 0; i < files.length; i++) {
       formData.append("files", files[i]);
     }
 
+    // Make an AJAX request to the '/upload' endpoint to handle file upload
     fetch("/upload", {
       method: "POST",
-      body: formData,
+      body: formData
     })
       .then((response) => response.json())
       .then((data) => {
-        // Hide the loading screen
+        // Hide the loading screen after upload is complete
         document.getElementById("loading-screen").style.display = "none";
+        
+        // Append the response (likely a confirmation message) to the results area
         document.getElementById("generated_result").innerHTML +=
-          '<div id="gemini">' + data + "</div>";
-        //console.log(data);
+          '<div id="gemini">' + data + "</div>"; 
       });
   }
 });
