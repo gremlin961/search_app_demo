@@ -209,7 +209,8 @@ document.getElementById("vais_search_query").addEventListener("change", function
 
 
 // Add an event listener for file uploads
-document.getElementById("upload_button").addEventListener("click", function () {
+// Add an event listener for file uploads
+document.getElementById("fileInput").addEventListener("change", function () { // Changed from 'click' on 'upload_button' to 'change' on 'fileInput'
   const fileInput = document.getElementById("fileInput");
   const files = fileInput.files;
 

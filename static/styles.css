@@ -14,11 +14,12 @@ h2 {
   font-size: 1.2rem; /* Slightly larger font size */
 }
 
+
 .large-input {
   border: 1px solid #ccc; /* Thin gray border */
   padding: 10px;
   border-radius: 5px;
-  width: 500px;
+  width: 95%;
   height: 75px;
   vertical-align: top;
   text-align: bottom;
@@ -31,7 +32,7 @@ h2 {
   padding: 10px;
   border-radius: 5px;
   resize: both;
-  width: 500px;
+  width: 95%;
   height: 75px;
   vertical-align: top;
   text-align: bottom;
@@ -109,8 +110,14 @@ h3 {
   padding-left: 1%;
   padding-right: 1%;
   float: left; 
-  width: 50%;
+  /* Adjust widths for the desired proportions */
+  width: 25%;  /* First section takes up 25% of the width */
 }
+
+.section + .section { /* Target the second section */
+  width: 74%;  /* Second section takes up the remaining 74% */
+}
+
 
 form {
   min-height: 83vh;
@@ -208,4 +215,25 @@ form {
   padding-left: 1%;
   padding-right: 5%;
   margin: 2%;
+}
+
+code {
+  white-space: pre-wrap; /* Allow whitespace to wrap */
+  word-wrap: break-word;  /* Break long words to the next line */
+  overflow-wrap: break-word; /* Similar to word-wrap, for wider browser support */
+}
+
+.upload-button {
+  display: inline-block;
+  cursor: pointer; /* Indicate it's clickable */
+}
+
+.upload-button img {
+  width: 50px; /* Adjust the image size as needed */
+  height: 37px;
+  vertical-align: middle;;
+}
+
+.upload-button input[type="file"] { 
+  display: none;  /* Hide the default file input */
 }

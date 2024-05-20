@@ -36,6 +36,7 @@
         <textarea name="custom_query" id="custom_query" class="large-input" style="display: none;"></textarea>
 
         <!-- Button to load grounding data based on the selected query -->
+        <br>
         <button type="button" id="load-button">Load</button>
 
         <!-- Loading screen displayed while fetching grounding data -->
@@ -85,11 +86,13 @@
 
         <!-- Button to send the follow-up prompt -->
         <button type="button" id="follow-up">Send</button>
-
+        
         <!-- Input for uploading files -->
-        <input type="file" id="fileInput" multiple> 
-        <!-- Button to upload the selected files -->
-        <button type="button" id="upload_button">Upload</button>
+        <label for="fileInput" class="upload-button">
+          <img src="/static/upload.png" alt="Upload Files">
+        </label>
+        <!-- Hide the input field to provide a clean and more user-friendly interface -->
+        <input type="file" id="fileInput" multiple style="display: none;">        
 
       </form>
     </div>
