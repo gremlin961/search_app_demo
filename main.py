@@ -1,3 +1,19 @@
+# Copyright 2024 Google, LLC. This software is provided as-is,
+# without warranty or representation for any use or purpose. Your
+# use of it is subject to your agreement with Google.
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 # Import required Python libraries
 from fastapi import FastAPI, File, UploadFile, Request, HTTPException, Form, Depends
 import uvicorn
@@ -11,13 +27,12 @@ import yaml
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import markdown
 import asyncio
-
 import mimetypes
 
 
 # Import Vertex AI libraries
 import vertexai
-from vertexai.preview.generative_models import GenerativeModel, Part, Tool, grounding
+from vertexai.preview.generative_models import GenerativeModel, GenerationConfig, Part, Tool, grounding
 from google.cloud import aiplatform
 from google.cloud import aiplatform_v1beta1 as vertex_ai
 from typing import List
@@ -64,12 +79,8 @@ objective = 'Provide information about the associated account'
 context = ' '
 output_format = 'This is a business conversation. Make sure to provide the reasoning for your response.' 
 
-
 # Initialize Gemini Pro chat model
 vertexai.init(project=project_id, location=region)
-chat_model = GenerativeModel("gemini-1.5-pro-preview-0409")
-chat = chat_model.start_chat()
-
 
 # --- Helper function to verify supported MIME type for file uploads
 def validate_file_type(file: UploadFile):
@@ -119,6 +130,10 @@ def validate_file_type(file: UploadFile):
 #            status_code=401, detail="Invalid credentials", headers={"WWW-Authenticate": "Basic"}
 #        )
 def home(request: Request):
+    # Set the chat_model and chat varialbes
+    global chat_model, chat
+    chat_model = GenerativeModel("gemini-1.5-pro-preview-0409")
+    chat = chat_model.start_chat()
 
     return templates.TemplateResponse("index.html", {"request": request, "persona": persona, "objective": objective, "context": context, "output_format": output_format})
 
@@ -163,8 +178,8 @@ async def load_gemini_response(request: Request):
             ),
         ]
         print("Setting the grounding data")
-        # Re-initialize the chat model with grounding tools
-        chat_model = GenerativeModel("gemini-1.5-pro-preview-0409", tools=tools,)
+        # Re-initialize the chat model using gemini-1.0-pro-002 with grounding tools
+        chat_model =GenerativeModel("gemini-1.0-pro-002", tools=tools, generation_config=GenerationConfig(temperature=0.0,),)
         chat = chat_model.start_chat()
 
     print("Generating Gemini Response...")
